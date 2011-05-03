@@ -1,18 +1,22 @@
 /*秀丸エディタから乱数列を生成するマクロ
 */
 
-$g_exe_filename = currentmacrodirectory + "\\hm_random.exe";
+$g_exe_filename = "hm_random.exe";
 #g_num_arg 		= 3;
 
+call Start;
+endmacro str(result);
 
-$g_searchbuffer = searchbuffer;
-#g_searchoption = searchoption;
-//折りたたみを維持,部分編集を維持,範囲選択,最後に移動
-//マクロ終了時に元に戻る。
-setcompatiblemode 0x0003|0x000c|0x0200|0x2000;
-call Main;
-setsearch $g_searchbuffer, #g_searchoption; 
-endmacro;
+
+
+
+Start:
+	$g_searchbuffer = searchbuffer;
+	#g_searchoption = searchoption;
+	call Main;
+	##ret = result;
+	setsearch $g_searchbuffer, #g_searchoption; 
+	return ##ret;
 
 
 Main:
@@ -33,7 +37,7 @@ Main:
 	
 	$$exe = "\"" + $g_exe_filename + "\"";
 	runex $$exe + $$arg
-		, 0 			//sync	  0:async 1:sync
+		, 1 			//sync	  0:async 1:sync
 		, 0, "" 		//stdin   0:none 1:auto 2:file 3:(reserve) 4:all 5:select
 		, 4, "" 		//stdout  0:none 1:auto 2:file 3:add file  4:new 5:insert 6:replace
 		, 0, "" 		//stderr  0:none 1:=out 2:file 3:add file  4:new 5:insert 6:replace
@@ -55,7 +59,7 @@ CorrectFormat:
 	$$fmt = $$1;
 	
 	##old_hidemaru = hidemaruhandle(0);
-	openfile "/h ";
+	openfile "/h";
 	##new_hidemaru = hidemaruhandle(0);
 	
 	disabledraw;

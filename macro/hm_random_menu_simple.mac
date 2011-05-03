@@ -1,0 +1,184 @@
+/*秀丸エディタから乱数列を生成するマクロ
+
+以下をメニューから選択
+	uint8
+	sint8
+	uint16
+	sint16
+	uint32
+	sint32
+	uint64
+	sint64
+
+*/
+
+$g_rnd_num="";
+$g_rnd_bit="";
+$g_rnd_fmt="";
+
+$g_tbl_type[0]="uint8[0,255]";
+$g_tbl_bit[0]="u8";
+$g_tbl_fmt[0]="%u\\n";
+
+$g_tbl_type[1]="sint8[-128,127]";
+$g_tbl_bit[1]="s8";
+$g_tbl_fmt[1]="%d\\n";
+
+$g_tbl_type[2]="uint16[0-65535]";
+$g_tbl_bit[2]="u16";
+$g_tbl_fmt[2]="%u\\n";
+
+$g_tbl_type[3]="sint16[-32768-32765]";
+$g_tbl_bit[3]="s16";
+$g_tbl_fmt[3]="%d\\n";
+
+$g_tbl_type[4]="uint32[0-]";
+$g_tbl_bit[4]="u32";
+$g_tbl_fmt[4]="%u\\n";
+
+$g_tbl_type[5]="sint32";
+$g_tbl_bit[5]="s32";
+$g_tbl_fmt[5]="%d\\n";
+
+$g_tbl_type[6]="uint64";
+$g_tbl_bit[6]="u64";
+$g_tbl_fmt[6]="%I64u\\n";
+
+$g_tbl_type[7]="sint64";
+$g_tbl_bit[7]="s64";
+$g_tbl_fmt[7]="%I64d\\n";
+#_g_num_tbl_type=8;
+
+////////////////////////////////////////////////////////////////////////////
+$g_tbl_name[0]="xorshift[xor128](周期 2^128-1)";
+$g_tbl_func[0]="xorshift";
+$g_tbl_name[1]="xorshift[xor](周期 2^32-1)";
+$g_tbl_func[1]="xor";
+$g_tbl_name[2]="xorshift[xor64](周期 2^64-1)";
+$g_tbl_func[2]="xor64";
+$g_tbl_name[3]="xorshift[xorwow](周期 2^192-2^32)";
+$g_tbl_func[3]="xorwow";
+$g_tbl_name[4]="SIMD-oriented Fast Mersenne Twister(周期 2^19937-1)";
+$g_tbl_func[4]="sfmt";
+#g_num_tbl_name=5;
+
+
+#g_dengaku_state=false;
+
+call Main;
+if(#g_dengaku_state){
+	freedll;
+}
+endmacro str(result);
+
+
+Main:
+	call LoadDengaku;
+	if(! result){
+		return false;
+	}
+	call ShowDialog;
+	if(! ##return){
+		return false;
+	}
+
+
+	#num = val($g_rnd_num);
+	if(#num<=0){
+		return false;
+	}
+	execmacro currentmacrodirectory+"\\hm_random_main.mac", $g_rnd_bit, $g_rnd_num, $g_rnd_fmt;
+	return val(getresultex(-1));
+
+
+ShowDialog:
+	##n = dllfunc("NEWDIALOG","コンボボックス・ドロップダウンリストのテスト",60);
+
+	##n = dllfunc("NEWCONTROL","text","txt1","生成する個数");
+	##n = dllfunc("NEWCONTROL","edit","ed1","10");
+
+	call MakeFuncDropBox;
+	if(! result){
+		return false;
+	}
+
+	call MakeTypeField;
+	if(! result){
+		return false;
+	}
+
+	##n = dllfunc("NEWCONTROL","okcancel","","");
+
+	if(! dllfunc("SHOWDIALOG",hidemaruhandle(0),1)){
+		return false;
+	}
+
+	//イベントループ
+	$name = "";
+	while(1){
+		while (strlen($name) == 0) {
+			$name = dllfuncstr("WAITCTRLNOTIFY",10);
+		}
+		##notify = val($name);
+		if (##notify <= 1) break; // 「ＯＫ」または「キャンセル」
+	}
+	if (!dllfunc("ENDDIALOG")) goto ERROR;
+	if (leftstr($name,1) != "1"){
+		//キャンセル
+		return false;
+	}
+
+	$$type = dllfuncstr("GETCTRLSTATE","cmbl2");
+	if("0"==$$type){
+		return false;
+	}
+
+	##i = val($$type) - 1;
+	$g_rnd_num = dllfuncstr("GETCTRLSTATE","ed1");
+	$g_rnd_bit = $g_tbl_bit[##i];
+	$g_rnd_fmt = $g_tbl_fmt[##i];
+
+	return true;
+
+MakeFuncDropBox:
+	##n = dllfunc("NEWCONTROL","text","","乱数の種類");
+	##n = dllfunc("SETCTRLWIDTH","",15);
+	##n = dllfunc("NEWCONTROL","cmblist","cmbl1","初期テキスト");
+
+	##i = 0;
+	while(##i < #g_num_tbl_name){
+		##n = dllfunc("SETCTRLITEM","",$g_tbl_name[##i],"-1");
+		##i=##i+1;
+	}
+	##n=dllfunc("SETCTRLSTATE","cmbl1", "1");
+	return true;
+
+MakeTypeField:
+	##n = dllfunc("NEWCONTROL","text","","整数の型");
+	##n = dllfunc("SETCTRLWIDTH","",15);
+	##n = dllfunc("NEWCONTROL","cmblist","cmbl2","初期テキスト");
+
+	##i = 0;
+	while(##i < #_g_num_tbl_type){
+		##n = dllfunc("SETCTRLITEM","",$g_tbl_type[##i],"-1");
+		##i=##i+1;
+	}
+	##n=dllfunc("SETCTRLSTATE","cmbl2", "1");
+	return true;
+
+
+LoadDengaku:
+	#g_dengaku_state=false;
+	loaddll hidemarudir + "\\DengakuDLL.dll";
+	if (!result) {
+		message "DLL をロードできませんでした。";
+		return false;
+	}
+	$DLLVer = dllfuncstr("GETVERSION");
+	if (val(leftstr($DLLVer, 1)) < 2) {
+		message "このマクロの実行には Ver.2.00 以降の田楽ＤＬＬが必要です。";
+		freedll;
+		return false;
+	}
+	#g_dengaku_state=true;
+	return true;
