@@ -18,8 +18,16 @@
 
 void usage(){
 	printf(
-		"usage: hm_random type num format\n"
+		"usage: hm_random func type num format\n"
 		"Options and argments:\n"		
+		"func   : xorshift (period 2^128-1)\n"
+		"         xor      (period 2^32-1)\n"
+		"         xor64    (period 2^64-1)\n"
+		"         xorwow   (period 2^192-2^32)\n"
+		"         sfmt     (period 2^19937-1)"
+		"         \n"
+		"         \n"
+		"         \n"
 		"type   :  u8   unsigned 8bit.\n"
 		"         u16   unsigned 16bit.\n"
 		"         u32   unsigned 32bit.\n"
@@ -52,7 +60,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	//random_interface*obj=new xs_xor128;
 	//random_interface*obj=new xs_xor;
 	//random_interface*obj=new xs_xor64;
-	random_interface*obj=new xs_xorwow;
+	//random_interface*obj=new xs_xorwow;
+	random_interface*obj=new sfmt;
 	const wchar_t* fmt = arg.m_fmt.c_str();
 
 	while(0 < arg.m_num){

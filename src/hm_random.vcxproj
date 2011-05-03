@@ -77,6 +77,7 @@
   <ItemGroup>
     <ClInclude Include="hm_def.h" />
     <ClInclude Include="parse_arg.h" />
+    <ClInclude Include="sfmt_wrap.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="xorshift.h" />
@@ -84,6 +85,7 @@
   <ItemGroup>
     <ClCompile Include="hm_random.cpp" />
     <ClCompile Include="parse_arg.cpp" />
+    <ClCompile Include="SFMT.c" />
     <ClCompile Include="stdafx.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

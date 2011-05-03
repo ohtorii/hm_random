@@ -21,3 +21,4 @@
 #include"parse_arg.h"
 
 #include"xorshift.h"
+#include"sfmt_wrap.h"
