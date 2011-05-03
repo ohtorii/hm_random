@@ -1,0 +1,22 @@
+/*秀丸エディタから乱数列を生成するマクロ
+
+（概要）
+マクロをカスタマイズされる方向けのサンプルです。
+
+（設定）
+個数        ：入力ボックからユーザーが入力する。
+基数        ：10進法
+乱数の種類  ：sfmt(SIMD-oriented Fast Mersenne Twister.)
+整数の型    ：u32
+*/
+$num = input("生成する乱数の個数を指定して下さい","10");
+if(0==strlen($num)){
+	endmacro;
+}
+#num = val($num);
+if(#num<=0){
+	endmacro;
+}
+
+$exe_path = currentmacrodirectory+"\\hm_random_main.mac";
+execmacro $exe_path,  $num, "sfmt", "u32", "%u\\n";

@@ -1,0 +1,15 @@
+/*秀丸エディタから乱数列を生成するマクロ
+
+（概要）
+マクロをカスタマイズされる方向けのサンプルです。
+
+（設定）
+個数        ：5個
+基数        ：16進法
+乱数の種類  ：xoreshift
+整数の型    ：u64
+その他      ：カンマ区切り
+*/
+
+$exe_path = currentmacrodirectory+"\\hm_random_main.mac";
+execmacro $exe_path,  "5", "xorshift", "u64", "0x%016I64x, ";

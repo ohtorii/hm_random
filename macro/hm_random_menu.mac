@@ -1,53 +1,88 @@
 /*秀丸エディタから乱数列を生成するマクロ
 
-以下をメニューから選択
-	uint8
-	sint8
-	uint16
-	sint16
-	uint32
-	sint32
-	uint64
-	sint64
+以下をメニューから選択します。
+	＊生成する個数
 
+	＊基数
+		10進法
+		16進法
+
+	＊乱数の種類
+		xorshift
+		xor
+		xor64
+		xorwow
+		sfmt(SIMD-oriented Fast Mersenne Twister.)
+
+	＊整数の型
+		uint8
+		sint8
+		uint16
+		sint16
+		uint32
+		sint32
+		uint64
+		sint64
+
+生成した乱数は新しい秀丸エディタに追加されます。
+
+（備考）
+2進法がない理由はprintfのフォーマッチにないからです。
+実装するのが面倒だったので対応してません。
 */
-
 $g_rnd_num="";
-$g_rnd_bit="";
+$g_rnd_func="";
+$g_rnd_type="";
 $g_rnd_fmt="";
 
 $g_tbl_type[0]="uint8[0,255]";
 $g_tbl_bit[0]="u8";
-$g_tbl_fmt[0]="%u\\n";
 
 $g_tbl_type[1]="sint8[-128,127]";
 $g_tbl_bit[1]="s8";
-$g_tbl_fmt[1]="%d\\n";
 
 $g_tbl_type[2]="uint16[0-65535]";
 $g_tbl_bit[2]="u16";
-$g_tbl_fmt[2]="%u\\n";
 
 $g_tbl_type[3]="sint16[-32768-32765]";
 $g_tbl_bit[3]="s16";
-$g_tbl_fmt[3]="%d\\n";
 
 $g_tbl_type[4]="uint32[0-]";
 $g_tbl_bit[4]="u32";
-$g_tbl_fmt[4]="%u\\n";
 
 $g_tbl_type[5]="sint32";
 $g_tbl_bit[5]="s32";
-$g_tbl_fmt[5]="%d\\n";
 
 $g_tbl_type[6]="uint64";
 $g_tbl_bit[6]="u64";
-$g_tbl_fmt[6]="%I64u\\n";
 
 $g_tbl_type[7]="sint64";
 $g_tbl_bit[7]="s64";
-$g_tbl_fmt[7]="%I64d\\n";
 #_g_num_tbl_type=8;
+
+////////////////////////////////////////////////////////////////////////////
+$g_tbl_ord[0]="10進法";
+$g_tbl_ord[1]="16進法";
+#g_tbl_ord_num=2;
+
+//１０進法
+$g_tbl_fmt[0][0]="%u\\n";
+$g_tbl_fmt[0][1]="%d\\n";
+$g_tbl_fmt[0][2]="%u\\n";
+$g_tbl_fmt[0][3]="%d\\n";
+$g_tbl_fmt[0][4]="%u\\n";
+$g_tbl_fmt[0][5]="%d\\n";
+$g_tbl_fmt[0][6]="%I64u\\n";
+$g_tbl_fmt[0][7]="%I64d\\n";
+//１６進法
+$g_tbl_fmt[1][0]="0x%02x\\n";
+$g_tbl_fmt[1][1]="0x%02x\\n";
+$g_tbl_fmt[1][2]="0x%04x\\n";
+$g_tbl_fmt[1][3]="0x%04x\\n";
+$g_tbl_fmt[1][4]="0x%08x\\n";
+$g_tbl_fmt[1][5]="0x%08x\\n";
+$g_tbl_fmt[1][6]="0x%016I64x\\n";
+$g_tbl_fmt[1][7]="0x%016I64x\\n";
 
 ////////////////////////////////////////////////////////////////////////////
 $g_tbl_name[0]="xorshift[xor128](周期 2^128-1)";
@@ -87,7 +122,7 @@ Main:
 	if(#num<=0){
 		return false;
 	}
-	execmacro currentmacrodirectory+"\\hm_random_main.mac", $g_rnd_bit, $g_rnd_num, $g_rnd_fmt;
+	execmacro currentmacrodirectory+"\\hm_random_main.mac", $g_rnd_num, $g_rnd_func, $g_rnd_type, $g_rnd_fmt;
 	return val(getresultex(-1));
 
 
@@ -96,6 +131,11 @@ ShowDialog:
 
 	##n = dllfunc("NEWCONTROL","text","txt1","生成する個数");
 	##n = dllfunc("NEWCONTROL","edit","ed1","10");
+
+	call MakeOrdDropBox;
+	if(! result){
+		return false;
+	}
 
 	call MakeFuncDropBox;
 	if(! result){
@@ -128,22 +168,47 @@ ShowDialog:
 		return false;
 	}
 
+	$$ord = dllfuncstr("GETCTRLSTATE","ord1");
+	if("0"==$$ord){
+		return false;
+	}
+	
+	$$func = dllfuncstr("GETCTRLSTATE","cmbl1");
+	if("0"==$$func){
+		return false;
+	}
+	
 	$$type = dllfuncstr("GETCTRLSTATE","cmbl2");
 	if("0"==$$type){
 		return false;
 	}
 
 	##i = val($$type) - 1;
-	$g_rnd_num = dllfuncstr("GETCTRLSTATE","ed1");
-	$g_rnd_bit = $g_tbl_bit[##i];
-	$g_rnd_fmt = $g_tbl_fmt[##i];
+	$g_rnd_num 	= dllfuncstr("GETCTRLSTATE","ed1");
+	$g_rnd_func = $g_tbl_func[val($$func)-1];
+	$g_rnd_type = $g_tbl_bit[##i];
+	$g_rnd_fmt 	= $g_tbl_fmt[val($$ord)-1][##i];
 
 	return true;
+
+MakeOrdDropBox:
+	##n = dllfunc("NEWCONTROL","text","","基数");
+	##n = dllfunc("SETCTRLWIDTH","",15);
+	##n = dllfunc("NEWCONTROL","cmblist","ord1","");
+
+	##i = 0;
+	while(##i < #g_num_tbl_name){
+		##n = dllfunc("SETCTRLITEM","",$g_tbl_ord[##i],"-1");
+		##i=##i+1;
+	}
+	##n=dllfunc("SETCTRLSTATE","ord1", "1");
+	return true;
+
 
 MakeFuncDropBox:
 	##n = dllfunc("NEWCONTROL","text","","乱数の種類");
 	##n = dllfunc("SETCTRLWIDTH","",15);
-	##n = dllfunc("NEWCONTROL","cmblist","cmbl1","初期テキスト");
+	##n = dllfunc("NEWCONTROL","cmblist","cmbl1","");
 
 	##i = 0;
 	while(##i < #g_num_tbl_name){
@@ -156,7 +221,7 @@ MakeFuncDropBox:
 MakeTypeField:
 	##n = dllfunc("NEWCONTROL","text","","整数の型");
 	##n = dllfunc("SETCTRLWIDTH","",15);
-	##n = dllfunc("NEWCONTROL","cmblist","cmbl2","初期テキスト");
+	##n = dllfunc("NEWCONTROL","cmblist","cmbl2","");
 
 	##i = 0;
 	while(##i < #_g_num_tbl_type){
