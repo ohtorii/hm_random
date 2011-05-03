@@ -112,12 +112,16 @@ unsigned long mwc(){
 
 void usage(){
 	printf(
-		"usage: hm_random mode num format\n"
-		"Options and argments:\n"
-		"mode   :  8    8bit random value.\n"
-		"         16   16bit.\n"
-		"         32   32bit.\n"
-		"         64   64bit.\n"
+		"usage: hm_random type num format\n"
+		"Options and argments:\n"		
+		"type   :  u8   unsigned 8bit.\n"
+		"         u16   unsigned 16bit.\n"
+		"         u32   unsigned 32bit.\n"
+		"         u64   unsigned 64bit.\n"
+		"          s8   signed   8bit.\n"
+		"         s16   signed   16bit.\n"
+		"         s32   signed   32bit.\n"
+		"         s64   signed   64bit.\n"
 		"num    : number of genrate random values.\n"
 		"format : printf format string.(Ex \"%%d\")\n"
 	);
@@ -139,10 +143,38 @@ int _tmain(int argc, _TCHAR* argv[])
 		return 1;
 	}
 
-
 	xor128	obj;
-	while(0 < arg.m_num){		
-		wprintf_s(arg.m_fmt.c_str(), arg.m_mask & obj.gen64());
+	const wchar_t* fmt = arg.m_fmt.c_str();
+
+	while(0 < arg.m_num){
+		switch(arg.m_mode){
+		case HM_MODE_u8:						
+			wprintf_s(fmt, (u8)obj.gen32());
+			break;
+		case HM_MODE_u16:
+			wprintf_s(fmt, (u16)obj.gen32());
+			break;
+		case HM_MODE_u32:
+			wprintf_s(fmt, (u32)obj.gen32());
+			break;
+		case HM_MODE_u64:		
+			wprintf_s(fmt, (u64)obj.gen64());
+			break;
+		case HM_MODE_s8:						
+			wprintf_s(fmt, (s8)obj.gen32());
+			break;
+		case HM_MODE_s16:
+			wprintf_s(fmt, (s16)obj.gen32());
+			break;
+		case HM_MODE_s32:
+			wprintf_s(fmt, (s32)obj.gen32());
+			break;
+		case HM_MODE_s64:	
+		default:
+			wprintf_s(fmt, (s64)obj.gen64());
+			break;
+		}
+		
 		--(arg.m_num);
 	}
 	

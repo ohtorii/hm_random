@@ -4,23 +4,45 @@
 
 
 static bool argv_model(HmArg&out, _TCHAR*p){	
-	if(0 == wcscmp(L"8",p)){
-		out.m_mode = HM_MODE_8;
+	if(0 == wcscmp(L"u8",p)){
+		out.m_mode = HM_MODE_u8;
 		out.m_mask = 0x00000000000000ffULL;
 		return true;
 	}
-	if(0 == wcscmp(L"16",p)){
-		out.m_mode = HM_MODE_16;
+	if(0 == wcscmp(L"u16",p)){
+		out.m_mode = HM_MODE_u16;
 		out.m_mask = 0x000000000000ffffULL;
 		return true;
 	}
-	if(0 == wcscmp(L"32",p)){
-		out.m_mode = HM_MODE_32;
+	if(0 == wcscmp(L"u32",p)){
+		out.m_mode = HM_MODE_u32;
 		out.m_mask = 0x00000000ffffffffULL;
 		return true;
 	}
-	if(0 == wcscmp(L"64",p)){
-		out.m_mode = HM_MODE_64;
+	if(0 == wcscmp(L"u64",p)){
+		out.m_mode = HM_MODE_u64;
+		out.m_mask = 0xffffffffffffffffULL;
+		return true;
+	}
+
+
+	if(0 == wcscmp(L"s8",p)){
+		out.m_mode = HM_MODE_s8;
+		out.m_mask = 0x00000000000000ffULL;
+		return true;
+	}
+	if(0 == wcscmp(L"s16",p)){
+		out.m_mode = HM_MODE_s16;
+		out.m_mask = 0x000000000000ffffULL;
+		return true;
+	}
+	if(0 == wcscmp(L"s32",p)){
+		out.m_mode = HM_MODE_s32;
+		out.m_mask = 0x00000000ffffffffULL;
+		return true;
+	}
+	if(0 == wcscmp(L"s64",p)){
+		out.m_mode = HM_MODE_s64;
 		out.m_mask = 0xffffffffffffffffULL;
 		return true;
 	}
