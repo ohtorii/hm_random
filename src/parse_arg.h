@@ -15,9 +15,16 @@ enum HM_MODE{
 	HM_MODE_ERROR,
 };
 
+enum HM_RND{
+	HM_RND_XOR128=0,
+	HM_RND_XOR,
+	HM_RND_XOR64,
+	HM_RND_XORWOW,
+};
 
 struct HmArg{
 	HM_MODE			m_mode;	
+	HM_RND			m_rnd;
 	s64				m_num;
 	std::wstring	m_fmt;
 	u64				m_mask;

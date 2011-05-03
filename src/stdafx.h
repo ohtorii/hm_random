@@ -19,3 +19,5 @@
 // TODO: プログラムに必要な追加ヘッダーをここで参照してください。
 #include"hm_def.h"
 #include"parse_arg.h"
+
+#include"xorshift.h"

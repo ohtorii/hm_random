@@ -9,3 +9,9 @@ typedef signed 		char	s8;
 typedef signed 		short	s16;
 typedef signed 		int		s32;
 typedef signed 		__int64	s64;
+
+class random_interface{
+public:
+	virtual u32 gen32()=0;
+	virtual u64 gen64()=0;
+};
