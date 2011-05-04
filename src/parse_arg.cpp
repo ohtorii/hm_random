@@ -3,7 +3,7 @@
 
 
 
-static bool argv_model(HmArg&out, _TCHAR*p){	
+static bool argv_model(HmArg&out, _TCHAR*p){
 	if(0 == wcscmp(L"u8",p)){
 		out.m_mode = HM_MODE_u8;
 		out.m_mask = 0x00000000000000ffULL;
@@ -24,8 +24,6 @@ static bool argv_model(HmArg&out, _TCHAR*p){
 		out.m_mask = 0xffffffffffffffffULL;
 		return true;
 	}
-
-
 	if(0 == wcscmp(L"s8",p)){
 		out.m_mode = HM_MODE_s8;
 		out.m_mask = 0x00000000000000ffULL;
@@ -44,6 +42,30 @@ static bool argv_model(HmArg&out, _TCHAR*p){
 	if(0 == wcscmp(L"s64",p)){
 		out.m_mode = HM_MODE_s64;
 		out.m_mask = 0xffffffffffffffffULL;
+		return true;
+	}
+	return false;
+}
+
+static bool argv_func(HmArg&out, _TCHAR*p){
+	if(0 == wcscmp(L"xorshift",p)){
+		out.m_rnd = HM_RND_XOR128;
+		return true;
+	}
+	if(0 == wcscmp(L"xor",p)){
+		out.m_rnd = HM_RND_XOR;
+		return true;
+	}
+	if(0 == wcscmp(L"xor64",p)){
+		out.m_rnd = HM_RND_XOR64;
+		return true;
+	}
+	if(0 == wcscmp(L"xorwow",p)){
+		out.m_rnd = HM_RND_XORWOW;
+		return true;
+	}
+	if(0 == wcscmp(L"sfmt",p)){
+		out.m_rnd = HM_RND_SFMT;
 		return true;
 	}
 	return false;
@@ -74,34 +96,39 @@ static void Replace(std::wstring&out, _TCHAR*argv){
 		}else{
 			if(has_yen){
 				if(L'n'==(*argv)){
-					out.push_back(L'\n');					
+					out.push_back(L'\n');
 				}else if(L't'==(*argv)){
-					out.push_back(L'\t');					
+					out.push_back(L'\t');
 				}else{
 					//不正なエスケープシーケンス
 					//直前の\を無視する。
-					out.push_back(*argv);					
+					out.push_back(*argv);
 				}
 				has_yen=false;
 			}else{
 				out.push_back(*argv);
-			}			
+			}
 		}
 		++argv;
-	}	
+	}
 }
 
 bool HmParseArg(HmArg &out, int argc, _TCHAR*argv[]){
-	if(argc != 4){
-		return false;
-	}
-		
-	if(! argv_model(out,argv[1])){
-		wprintf(L"ErrArg: mode\n");
+	if(argc != 5){
 		return false;
 	}
 	
-	out.m_num  = _wtoi64(argv[2]);
-	Replace(out.m_fmt, argv[3]);
+	out.m_num  = _wtoi64(argv[1]);
+	if(! argv_func(out, argv[2])){
+		wprintf(L"ErrArg: func\n");
+		return false;
+	}
+	
+	if(! argv_model(out,argv[3])){
+		wprintf(L"ErrArg: mode\n");
+		return false;
+	}
+
+	Replace(out.m_fmt, argv[4]);
 	return true;
 }

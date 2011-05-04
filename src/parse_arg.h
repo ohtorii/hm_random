@@ -20,12 +20,13 @@ enum HM_RND{
 	HM_RND_XOR,
 	HM_RND_XOR64,
 	HM_RND_XORWOW,
+	HM_RND_SFMT,
 };
 
 struct HmArg{
-	HM_MODE			m_mode;	
-	HM_RND			m_rnd;
 	s64				m_num;
+	HM_RND			m_rnd;
+	HM_MODE			m_mode;	
 	std::wstring	m_fmt;
 	u64				m_mask;
 };

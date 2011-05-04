@@ -1,8 +1,16 @@
 /*秀丸エディタから乱数列を生成するマクロ
+マクロで内部使用するファイル。
+
+（やっていること）
+乱数を生成する実行ファイルを呼び出し、標準出力を秀丸エディタへ反映する。
 */
 
+
 $g_exe_filename = "hm_random.exe";
-#g_num_arg 		= 3;
+
+//exeに与える引数の個数
+#g_num_arg		= 4;
+
 
 call Start;
 endmacro str(result);
@@ -15,7 +23,7 @@ Start:
 	#g_searchoption = searchoption;
 	call Main;
 	##ret = result;
-	setsearch $g_searchbuffer, #g_searchoption; 
+	setsearch $g_searchbuffer, #g_searchoption;
 	return ##ret;
 
 
@@ -25,16 +33,16 @@ Main:
 				"ファイル名：" + $g_exe_filename);
 		return false;
 	}
-	
+
 	if(#g_num_arg != argcount){
 		message("引数の個数が合いません");
 		return false;
 	}
-	
-	$$arg	= " " + getarg(0) + " " + getarg(1);
-	call CorrectFormat getarg(2);
-	$$arg	= $$arg + " " + $$return;
-	
+
+	$$arg	= " " + getarg(0) + " " + getarg(1) + " " + getarg(2);
+	call CorrectFormat getarg(3);
+	$$arg	= $$arg + " " + "\"" + $$return + "\"";
+
 	$$exe = "\"" + $g_exe_filename + "\"";
 	runex $$exe + $$arg
 		, 1 			//sync	  0:async 1:sync
@@ -51,17 +59,21 @@ Main:
 		message("runexで失敗");
 		return false;
 	}
-	
+
 	return true;
 
+/*秀丸エディタは 「%d -> フォルダ名」へ置換するので、% -> %%へ修正。
 
+詳細は秀丸マクロのヘルプを参照。
+run，runsync，runsync2文
+*/
 CorrectFormat:
 	$$fmt = $$1;
-	
+
 	##old_hidemaru = hidemaruhandle(0);
 	openfile "/h";
 	##new_hidemaru = hidemaruhandle(0);
-	
+
 	disabledraw;
 	insert($$fmt);
 	gofiletop;
@@ -72,5 +84,5 @@ CorrectFormat:
 	$$text = gettext2(seltopcolumn,seltoplineno,selendcolumn,selendlineno);
 	setactivehidemaru ##old_hidemaru;
 	closehidemaruforced ##new_hidemaru;
-	
+
 	return $$text;
