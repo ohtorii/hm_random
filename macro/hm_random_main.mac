@@ -47,6 +47,11 @@ Main:
 	$$arg	= $$arg + " " + "\"" + $$return + "\"";
 
 	$$exe = "\"" + $g_exe_filename + "\"";
+	
+	//10秒待っても切り替えできないエラーを抑制。
+	//万単位の乱数を生成すると時間がかかるため。
+	seterrormode 1, 0;
+	
 	runex $$exe + $$arg
 		, 1 			//sync	  0:async 1:sync
 		, 0, "" 		//stdin   0:none 1:auto 2:file 3:(reserve) 4:all 5:select
@@ -81,6 +86,11 @@ CorrectFormat:
 	insert($$fmt);
 	gofiletop;
 	replaceallfast "%", "%%", noregular;
+
+	//	" → ""
+	gofiletop;
+	replaceallfast "\"", "\"\"", noregular;
+
 	enabledraw;
 
 	selectall;

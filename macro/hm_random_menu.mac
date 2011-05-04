@@ -1,38 +1,51 @@
 /*秀丸エディタから乱数列を生成するマクロ
 
+秀丸エディタで乱数を生成するマクロがなかったので自作しました。
+（浮動小数点版の秀丸エディタにはあるようですが、当方は普通の秀丸エディタなので。）
+
 以下をメニューから選択します。
-	＊生成する個数
+    ＊生成する個数
 
-	＊乱数の種類
-		sfmt(SIMD-oriented Fast Mersenne Twister.)
-		xorshift
-		xor
-		xor64
-		xorwow
+    ＊乱数の種類
+        sfmt(SIMD-oriented Fast Mersenne Twister.)
+        xorshift
+        xor
+        xor64
+        xorwow
+        drand48
 
-	＊最大最小値の基数
-		2
-		10
-		16
+    ＊最大最小値の基数
+        2
+        10
+        16
 
-	＊最小値
+    ＊最小値
 
-	＊最大値
+    ＊最大値
 
-	＊プレフィックス
+    ＊プレフィックス
 
-	＊出力乱数の基数
-		2
-		10
-		16
+    ＊出力乱数の基数
+        2
+        10
+        16
 
-	＊区切り
-		改行
-		カンマ
-		空白
-
+    ＊区切り
+        改行
+        カンマ
+        空白
 
 生成した乱数は新しい秀丸エディタに追加されます。
+
+
+（動かない）
+＊マクロ起動時にダイアログの表示がおかしな時は、設定ファイル(hm_random_menu.ini)
+  を削除してみて下さい。
+
+
+（連絡先）
+    http://d.hatena.ne.jp/ohtorii/
+    https://github.com/ohtorii/hm_random
 */
 
 //ダイアログの設定を保存する(.ini)ファイル名。
@@ -134,7 +147,7 @@ Main:
 
 
 ShowDialog:
-	##n = dllfunc("NEWDIALOG","乱数生成の設定",61);
+	##n = dllfunc("NEWDIALOG","乱数の設定",61);
 
 	##n = dllfunc("NEWCONTROL","text","txt1","生成する個数");
 	##n = dllfunc("NEWCONTROL","edit","num",$g_default_num);
@@ -263,14 +276,14 @@ SetDialogValueToGlobalValue:
 SaveIni:
 	$$fn = $g_ini_file_name;
 	$$sc = $g_ini_section_name;
-	writeinistr $$fn,$$sc,"num" 		,$g_rnd_num;
-	writeinistr $$fn,$$sc,"func"		,$g_rnd_func;
-	writeinistr $$fn,$$sc,"in_base" 	,$g_rnd_in_base;
-	writeinistr $$fn,$$sc,"min" 		,$g_rnd_min;
-	writeinistr $$fn,$$sc,"max" 		,$g_rnd_max;
-	writeinistr $$fn,$$sc,"prefix"		,$g_rnd_prefix;
-	writeinistr $$fn,$$sc,"out_base"	,$g_rnd_out_base;
-	writeinistr $$fn,$$sc,"delimiter"	,$g_rnd_delimiter;
+	writeinistr $$fn,$$sc,"num" 		,dllfuncstr("GETCTRLSTRING","num");
+	writeinistr $$fn,$$sc,"func"		,dllfuncstr("GETCTRLSTATE","func");
+	writeinistr $$fn,$$sc,"in_base" 	,dllfuncstr("GETCTRLSTATE","in_base");
+	writeinistr $$fn,$$sc,"min" 		,dllfuncstr("GETCTRLSTRING","min");
+	writeinistr $$fn,$$sc,"max" 		,dllfuncstr("GETCTRLSTRING","max");
+	writeinistr $$fn,$$sc,"prefix"		,dllfuncstr("GETCTRLSTRING","prefix");
+	writeinistr $$fn,$$sc,"out_base"	,dllfuncstr("GETCTRLSTATE","out_base");
+	writeinistr $$fn,$$sc,"delimiter"	,dllfuncstr("GETCTRLSTATE","delimiter");
 	return;
 
 
@@ -318,7 +331,6 @@ LoadIni:
 		$g_default_delimiter=$$val;
 	}
 	return;
-
 
 LoadDengaku:
 	#g_dengaku_state=false;
