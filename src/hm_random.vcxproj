@@ -75,6 +75,7 @@
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="drand48.h" />
     <ClInclude Include="hm_def.h" />
     <ClInclude Include="parse_arg.h" />
     <ClInclude Include="sfmt_wrap.h" />

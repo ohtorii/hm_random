@@ -4,14 +4,14 @@
 マクロをカスタマイズされる方向けのサンプルです。
 
 （設定）
-個数       	 ：入力ボックからユーザーが入力する。
-乱数の種類  	：sfmt(SIMD-oriented Fast Mersenne Twister.)
+個数         ：入力ボックからユーザーが入力する。
+乱数の種類      ：sfmt(SIMD-oriented Fast Mersenne Twister.)
 最大最小値の基数：16進法
-最小値			：0
-最大値			：0xffffffffffffffff
-プレフィックス	："0x"
-出力の基数		：16進法
-区切り			：",\n"
+最小値          ：0
+最大値          ：0xffffffffffffffff
+プレフィックス  ："0x"
+出力の基数      ：16進法
+区切り          ：",\n"
 */
 $num = input("生成する乱数の個数を指定して下さい","10");
 if(0==strlen($num)){

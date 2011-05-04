@@ -4,11 +4,11 @@
 	＊生成する個数
 
 	＊乱数の種類
+		sfmt(SIMD-oriented Fast Mersenne Twister.)
 		xorshift
 		xor
 		xor64
 		xorwow
-		sfmt(SIMD-oriented Fast Mersenne Twister.)
 
 	＊最大最小値の基数
 		2
@@ -16,7 +16,7 @@
 		16
 
 	＊最小値
-	
+
 	＊最大値
 
 	＊プレフィックス
@@ -34,53 +34,69 @@
 
 生成した乱数は新しい秀丸エディタに追加されます。
 */
-$g_rnd_num		="";
-$g_rnd_func		="";
-$g_rnd_in_base	="";
-$g_rnd_min		="";
-$g_rnd_max		="";
-$g_rnd_prefix	="";
-$g_rnd_out_base	="";
-$g_rnd_delimiter="";
+
+//ダイアログの設定を保存する(.ini)ファイル名。
+$g_ini_file_name		= currentmacrodirectory + "\\" + "hm_random_menu.ini";
+$g_ini_section_name 	= "section";
+
 
 
 ////////////////////////////////////////////////////////////////////////////
-$g_tbl_ord[0]		= "2進法";
-$g_tbl_ord_str[0]	= "2";
-$g_tbl_ord[1]		= "10進法";
-$g_tbl_ord_str[1]	= "10";
-$g_tbl_ord[2]		= "16進法";
-$g_tbl_ord_str[2]	= "16";
-#g_tbl_ord_num=3;
-
-
+//ダイアログのデフォルト値
+$g_default_num			= "32";
+$g_default_func 		= "1";		//SFMT
+$g_default_in_base		= "2";		//10進数
+$g_default_min			= "-100";
+$g_default_max			= "100";
+$g_default_prefix		= "";
+$g_default_out_base 	= "2";		//10進数
+$g_default_delimiter	= "1";		//改行
 ////////////////////////////////////////////////////////////////////////////
-$g_tbl_delimiter[0]		= "改行";
-$g_tbl_delimiter_str[0]	= "\\n";
-$g_tbl_delimiter[1]		= "カンマ";
-$g_tbl_delimiter_str[1]	= ",";
-$g_tbl_delimiter[2]		= "空白";
-$g_tbl_delimiter_str[2]	= " ";
-$g_tbl_delimiter[3]		= "無し";
-$g_tbl_delimiter_str[3]	= "";
+//exeへ渡す引数。
+$g_rnd_num				= "";
+$g_rnd_func 			= "";
+$g_rnd_in_base			= "";
+$g_rnd_min				= "";
+$g_rnd_max				= "";
+$g_rnd_prefix			= "";
+$g_rnd_out_base 		= "";
+$g_rnd_delimiter		= "";
+////////////////////////////////////////////////////////////////////////////
+$g_tbl_ord[0]			= "2進数";
+$g_tbl_ord_str[0]		= "2";
+$g_tbl_ord[1]			= "10進数";
+$g_tbl_ord_str[1]		= "10";
+$g_tbl_ord[2]			= "16進数";
+$g_tbl_ord_str[2]		= "16";
+#g_tbl_ord_num			= 3;
+////////////////////////////////////////////////////////////////////////////
+$g_tbl_delimiter[0] 	= "改行";
+$g_tbl_delimiter_str[0] = "\\n";
+$g_tbl_delimiter[1] 	= "カンマ";
+$g_tbl_delimiter_str[1] = ",";
+$g_tbl_delimiter[2] 	= "空白";
+$g_tbl_delimiter_str[2] = " ";
+$g_tbl_delimiter[3] 	= "無し";
+$g_tbl_delimiter_str[3] = "";
 #g_tbl_delimiter_num	= 4;
-
-
 ////////////////////////////////////////////////////////////////////////////
-$g_tbl_name[0]="xorshift[xor128](周期 2^128-1)";
-$g_tbl_func[0]="xorshift";
-$g_tbl_name[1]="xorshift[xor](周期 2^32-1)";
-$g_tbl_func[1]="xor";
-$g_tbl_name[2]="xorshift[xor64](周期 2^64-1)";
-$g_tbl_func[2]="xor64";
-$g_tbl_name[3]="xorshift[xorwow](周期 2^192-2^32)";
-$g_tbl_func[3]="xorwow";
-$g_tbl_name[4]="SIMD-oriented Fast Mersenne Twister(周期 2^19937-1)";
-$g_tbl_func[4]="sfmt";
-#g_num_tbl_name=5;
+$g_tbl_name[0]			= "SIMD-oriented Fast Mersenne Twister  (周期 2^19937-1)";
+$g_tbl_func[0]			= "sfmt";
+$g_tbl_name[1]			= "xorshift[xor128]  (周期 2^128-1)";
+$g_tbl_func[1]			= "xorshift";
+$g_tbl_name[2]			= "xorshift[xor]  (周期 2^32-1)";
+$g_tbl_func[2]			= "xor";
+$g_tbl_name[3]			= "xorshift[xor64]  (周期 2^64-1)";
+$g_tbl_func[3]			= "xor64";
+$g_tbl_name[4]			= "xorshift[xorwow]  (周期 2^192-2^32)";
+$g_tbl_func[4]			= "xorwow";
+#g_num_tbl_name 		= 5;
+////////////////////////////////////////////////////////////////////////////
+
+//DengakuDLLをロードしたかどうか。
+#g_dengaku_state		= false;
 
 
-#g_dengaku_state=false;
 
 call Main;
 if(#g_dengaku_state){
@@ -94,6 +110,7 @@ Main:
 	if(! result){
 		return false;
 	}
+	call LoadIni;
 	call ShowDialog;
 	if(! ##return){
 		return false;
@@ -117,37 +134,37 @@ Main:
 
 
 ShowDialog:
-	##n = dllfunc("NEWDIALOG","コンボボックス・ドロップダウンリストのテスト",60);
+	##n = dllfunc("NEWDIALOG","乱数生成の設定",61);
 
 	##n = dllfunc("NEWCONTROL","text","txt1","生成する個数");
-	##n = dllfunc("NEWCONTROL","edit","num","10");
+	##n = dllfunc("NEWCONTROL","edit","num",$g_default_num);
 
-	call MakeMenu "乱数の種類", "func", 0;
+	call MakeMenu "乱数の種類", "func", 0, $g_default_func;
 	if(! result){
 		return false;
 	}
-	
-	call MakeMenu "最大最小値の基数", "in_base", 1;
+
+	call MakeMenu "最大最小値の基数", "in_base", 1, $g_default_in_base;
 	if(! result){
 		return false;
 	}
-	
+
 	##n = dllfunc("NEWCONTROL","text","txt2","最小値");
-	##n = dllfunc("NEWCONTROL","edit","min","0");
-	
+	##n = dllfunc("NEWCONTROL","edit","min",$g_default_min);
+
 	##n = dllfunc("NEWCONTROL","text","txt3","最大値");
-	##n = dllfunc("NEWCONTROL","edit","max","100");
-	
+	##n = dllfunc("NEWCONTROL","edit","max",$g_default_max);
+
 	##n = dllfunc("NEWCONTROL","text","txt4","プレフィックス");
-	##n = dllfunc("NEWCONTROL","edit","prefix","hoge");
-	
-	call MakeMenu "乱数の基数", "out_base", 1;
+	##n = dllfunc("NEWCONTROL","edit","prefix",$g_default_prefix);
+
+	call MakeMenu "乱数の基数", "out_base", 1, $g_default_out_base;
 	if(! result){
 		return false;
 	}
-	
-	call MakeMenu "区切り", "delimiter", 2;
-	
+
+	call MakeMenu "区切り", "delimiter", 2, $g_default_delimiter;
+
 	##n = dllfunc("NEWCONTROL","okcancel","","");
 
 	if(! dllfunc("SHOWDIALOG",hidemaruhandle(0),1)){
@@ -168,17 +185,19 @@ ShowDialog:
 		//キャンセル
 		return false;
 	}
-	
+
 	call SetDialogValueToGlobalValue;
 	##ret = ##return;
+	call SaveIni;
 	return ##ret;
 
 
 MakeMenu:
-	$$title		= $$1;
+	$$title 	= $$1;
 	$$value_name= $$2;
-	##no 		= ##3;
-	
+	##no		= ##3;
+	$$default	= $$4;
+
 	if(0==##no){
 		##menu_num = #g_num_tbl_name;
 	}else if(1==##no){
@@ -186,7 +205,7 @@ MakeMenu:
 	}else if(2==##no){
 		##menu_num = #g_tbl_delimiter_num;
 	}
-	
+
 	##n = dllfunc("NEWCONTROL","text","",$$title);
 	##n = dllfunc("SETCTRLWIDTH","",15);
 	##n = dllfunc("NEWCONTROL","cmblist",$$value_name,"");
@@ -200,48 +219,107 @@ MakeMenu:
 		}else if(2==##no){
 			$$menu_name = $g_tbl_delimiter[##i];
 		}
-		
+
 		##n = dllfunc("SETCTRLITEM","",$$menu_name,"-1");
 		##i=##i+1;
 	}
-	
-	//とりあえず、先頭の項目を選択しておく。
-	##n=dllfunc("SETCTRLSTATE",$$value_name, "1");
+
+	##n=dllfunc("SETCTRLSTATE",$$value_name, $$default);
 	return true;
 
 SetDialogValueToGlobalValue:
-	$g_rnd_num 		= dllfuncstr("GETCTRLSTRING","num");
-	
-	$$func 			= dllfuncstr("GETCTRLSTATE","func");
+	$g_rnd_num		= dllfuncstr("GETCTRLSTRING","num");
+
+	$$func			= dllfuncstr("GETCTRLSTATE","func");
 	if("0"==$$func){
 		return false;
 	}
 	$g_rnd_func 	= $g_tbl_func[val($$func)-1];
-	
-	$$in_base 		= dllfuncstr("GETCTRLSTATE","in_base");
+
+	$$in_base		= dllfuncstr("GETCTRLSTATE","in_base");
 	if("0"==$$in_base){
 		return false;
 	}
-	$g_rnd_in_base 	= $g_tbl_ord_str[val($$in_base)-1];
-	
-	$g_rnd_min 		= dllfuncstr("GETCTRLSTRING","min");
-	$g_rnd_max 		= dllfuncstr("GETCTRLSTRING","max");
+	$g_rnd_in_base	= $g_tbl_ord_str[val($$in_base)-1];
+
+	$g_rnd_min		= dllfuncstr("GETCTRLSTRING","min");
+	$g_rnd_max		= dllfuncstr("GETCTRLSTRING","max");
 	$g_rnd_prefix	= dllfuncstr("GETCTRLSTRING","prefix");
-	
-	$$out_base 		= dllfuncstr("GETCTRLSTATE","out_base");
+
+	$$out_base		= dllfuncstr("GETCTRLSTATE","out_base");
 	if("0"==$$out_base){
 		return false;
 	}
-	$g_rnd_out_base	= $g_tbl_ord_str[val($$out_base)-1];
-	
-	$$delimiter		= dllfuncstr("GETCTRLSTATE","delimiter");
+	$g_rnd_out_base = $g_tbl_ord_str[val($$out_base)-1];
+
+	$$delimiter 	= dllfuncstr("GETCTRLSTATE","delimiter");
 	if("0" == $$delimiter){
 		return false;
 	}
 	$g_rnd_delimiter= $g_tbl_delimiter_str[val($$delimiter)-1];
 	return true;
-	
-	
+
+
+SaveIni:
+	$$fn = $g_ini_file_name;
+	$$sc = $g_ini_section_name;
+	writeinistr $$fn,$$sc,"num" 		,$g_rnd_num;
+	writeinistr $$fn,$$sc,"func"		,$g_rnd_func;
+	writeinistr $$fn,$$sc,"in_base" 	,$g_rnd_in_base;
+	writeinistr $$fn,$$sc,"min" 		,$g_rnd_min;
+	writeinistr $$fn,$$sc,"max" 		,$g_rnd_max;
+	writeinistr $$fn,$$sc,"prefix"		,$g_rnd_prefix;
+	writeinistr $$fn,$$sc,"out_base"	,$g_rnd_out_base;
+	writeinistr $$fn,$$sc,"delimiter"	,$g_rnd_delimiter;
+	return;
+
+
+LoadIni:
+	$$fn = $g_ini_file_name;
+	$$sc = $g_ini_section_name;
+
+	$$val = getinistr($$fn,$$sc,"num");
+	if(0!=strlen($$val)){
+		$g_default_num=$$val;
+	}
+
+	$$val = getinistr($$fn,$$sc,"func");
+	if(0!=strlen($$val)){
+		$g_default_func=$$val;
+	}
+
+	$$val = getinistr($$fn,$$sc,"in_base");
+	if(0!=strlen($$val)){
+		$g_default_in_base=$$val;
+	}
+
+	$$val = getinistr($$fn,$$sc,"min");
+	if(0!=strlen($$val)){
+		$g_default_min=$$val;
+	}
+
+	$$val = getinistr($$fn,$$sc,"max");
+	if(0!=strlen($$val)){
+		$g_default_max=$$val;
+	}
+
+	$$val = getinistr($$fn,$$sc,"prefix");
+	if(0!=strlen($$val)){
+		$g_default_prefix=$$val;
+	}
+
+	$$val = getinistr($$fn,$$sc,"out_base");
+	if(0!=strlen($$val)){
+		$g_default_out_base=$$val;
+	}
+
+	$$val = getinistr($$fn,$$sc,"delimiter");
+	if(0!=strlen($$val)){
+		$g_default_delimiter=$$val;
+	}
+	return;
+
+
 LoadDengaku:
 	#g_dengaku_state=false;
 	loaddll hidemarudir + "\\DengakuDLL.dll";

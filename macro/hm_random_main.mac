@@ -46,7 +46,6 @@ Main:
 	call CorrectFormat getarg(7);
 	$$arg	= $$arg + " " + "\"" + $$return + "\"";
 
-	message($$arg);
 	$$exe = "\"" + $g_exe_filename + "\"";
 	runex $$exe + $$arg
 		, 1 			//sync	  0:async 1:sync

@@ -9,6 +9,7 @@ enum HM_RND{
 	HM_RND_XOR64,
 	HM_RND_XORWOW,
 	HM_RND_SFMT,
+	HM_RND_DRAND48,
 };
 
 class HmArg{

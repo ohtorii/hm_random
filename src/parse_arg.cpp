@@ -22,6 +22,10 @@ static bool argv_func(HmArg&out, _TCHAR*p){
 		out.m_rnd = HM_RND_SFMT;
 		return true;
 	}
+	if(0 == wcscmp(L"drand48",p)){
+		out.m_rnd = HM_RND_DRAND48;
+		return true;
+	}
 	return false;
 }
 

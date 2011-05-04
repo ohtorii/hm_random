@@ -22,3 +22,4 @@
 
 #include"xorshift.h"
 #include"sfmt_wrap.h"
+#include"drand48.h"

@@ -26,6 +26,7 @@ static void usage(){
 		"         xor64    (period 2^64-1)\n"
 		"         xorwow   (period 2^192-2^32)\n"
 		"         sfmt     (SIMD-oriented Fast Mersenne Twister. period 2^19937-1)\n"
+		"         drand48  (period 2^48)\n"
 		"base_in: min/max base.(2/8/10/16/...)        default=10\n"
 		"min    ; min value(signed).                  default=0\n"
 		"max    : max value(signed). [min,max]        default=100\n"
@@ -43,15 +44,23 @@ static void usage(){
 static random_interface* new_rand_obj(HM_RND type){
 	switch(type){
 	case HM_RND_XOR128:
+		//printf("HM_RND_XOR128\n");
 		return new xs_xor128;
 	case HM_RND_XOR:
+		//printf("HM_RND_XOR\n");
 		return new xs_xor;
 	case HM_RND_XOR64:
+		//printf("HM_RND_XOR64\n");
 		return new xs_xor64;
 	case HM_RND_XORWOW:
+		//printf("HM_RND_XORWOW\n");
 		return new xs_xorwow;
 	case HM_RND_SFMT:
+		//printf("HM_RND_SFMT\n");
 		return new sfmt;
+	case HM_RND_DRAND48:
+		//printf("HM_RND_DRAND48\n");
+		return new drand48;
 	default:
 		//pass
 		break;
