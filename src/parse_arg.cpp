@@ -1,52 +1,6 @@
 #include "stdafx.h"
 
 
-
-
-static bool argv_model(HmArg&out, _TCHAR*p){
-	if(0 == wcscmp(L"u8",p)){
-		out.m_mode = HM_MODE_u8;
-		out.m_mask = 0x00000000000000ffULL;
-		return true;
-	}
-	if(0 == wcscmp(L"u16",p)){
-		out.m_mode = HM_MODE_u16;
-		out.m_mask = 0x000000000000ffffULL;
-		return true;
-	}
-	if(0 == wcscmp(L"u32",p)){
-		out.m_mode = HM_MODE_u32;
-		out.m_mask = 0x00000000ffffffffULL;
-		return true;
-	}
-	if(0 == wcscmp(L"u64",p)){
-		out.m_mode = HM_MODE_u64;
-		out.m_mask = 0xffffffffffffffffULL;
-		return true;
-	}
-	if(0 == wcscmp(L"s8",p)){
-		out.m_mode = HM_MODE_s8;
-		out.m_mask = 0x00000000000000ffULL;
-		return true;
-	}
-	if(0 == wcscmp(L"s16",p)){
-		out.m_mode = HM_MODE_s16;
-		out.m_mask = 0x000000000000ffffULL;
-		return true;
-	}
-	if(0 == wcscmp(L"s32",p)){
-		out.m_mode = HM_MODE_s32;
-		out.m_mask = 0x00000000ffffffffULL;
-		return true;
-	}
-	if(0 == wcscmp(L"s64",p)){
-		out.m_mode = HM_MODE_s64;
-		out.m_mask = 0xffffffffffffffffULL;
-		return true;
-	}
-	return false;
-}
-
 static bool argv_func(HmArg&out, _TCHAR*p){
 	if(0 == wcscmp(L"xorshift",p)){
 		out.m_rnd = HM_RND_XOR128;
@@ -114,21 +68,43 @@ static void Replace(std::wstring&out, _TCHAR*argv){
 }
 
 bool HmParseArg(HmArg &out, int argc, _TCHAR*argv[]){
-	if(argc != 5){
+	if(argc<2){
+		wprintf(L"ErrArg: Invalid arg num.\n");
 		return false;
 	}
 	
-	out.m_num  = _wtoi64(argv[1]);
-	if(! argv_func(out, argv[2])){
-		wprintf(L"ErrArg: func\n");
-		return false;
+	if(1<argc){
+		out.m_num  = _wtoi64(argv[1]);
+	}
+	if(2<argc){
+		if(! argv_func(out, argv[2])){
+			wprintf(L"ErrArg: func\n");
+			return false;
+		}
 	}
 	
-	if(! argv_model(out,argv[3])){
-		wprintf(L"ErrArg: mode\n");
+	if(3<argc){
+		out.m_in_base=_wtoi(argv[3]);
+	}
+	if(4<argc){
+		out.m_min = _wcstoi64(argv[4],0,out.m_in_base);
+	}
+	if(5<argc){
+		out.m_max = _wcstoi64(argv[5],0,out.m_in_base);
+	}
+	if(out.m_max < out.m_min){
+		wprintf(L"ErrArg: max<min\n");
 		return false;
 	}
-
-	Replace(out.m_fmt, argv[4]);
+	if(6<argc){
+		out.m_prefix.assign(argv[6]);
+	}
+	if(7<argc){
+		out.m_out_base=_wtoi(argv[7]);
+	}
+	if(8<argc){
+		Replace(out.m_delimiter, argv[8]);
+	}
+	
 	return true;
 }

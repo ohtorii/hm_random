@@ -3,10 +3,6 @@
 以下をメニューから選択します。
 	＊生成する個数
 
-	＊基数
-		10進法
-		16進法
-
 	＊乱数の種類
 		xorshift
 		xor
@@ -14,75 +10,61 @@
 		xorwow
 		sfmt(SIMD-oriented Fast Mersenne Twister.)
 
-	＊整数の型
-		uint8
-		sint8
-		uint16
-		sint16
-		uint32
-		sint32
-		uint64
-		sint64
+	＊最大最小値の基数
+		2
+		10
+		16
+
+	＊最小値
+	
+	＊最大値
+
+	＊プレフィックス
+
+	＊出力乱数の基数
+		2
+		10
+		16
+
+	＊区切り
+		改行
+		カンマ
+		空白
+
 
 生成した乱数は新しい秀丸エディタに追加されます。
-
-（備考）
-2進法がない理由はprintfのフォーマッチにないからです。
-実装するのが面倒だったので対応してません。
 */
-$g_rnd_num="";
-$g_rnd_func="";
-$g_rnd_type="";
-$g_rnd_fmt="";
+$g_rnd_num		="";
+$g_rnd_func		="";
+$g_rnd_in_base	="";
+$g_rnd_min		="";
+$g_rnd_max		="";
+$g_rnd_prefix	="";
+$g_rnd_out_base	="";
+$g_rnd_delimiter="";
 
-$g_tbl_type[0]="uint8[0,255]";
-$g_tbl_bit[0]="u8";
-
-$g_tbl_type[1]="sint8[-128,127]";
-$g_tbl_bit[1]="s8";
-
-$g_tbl_type[2]="uint16[0-65535]";
-$g_tbl_bit[2]="u16";
-
-$g_tbl_type[3]="sint16[-32768-32765]";
-$g_tbl_bit[3]="s16";
-
-$g_tbl_type[4]="uint32[0-]";
-$g_tbl_bit[4]="u32";
-
-$g_tbl_type[5]="sint32";
-$g_tbl_bit[5]="s32";
-
-$g_tbl_type[6]="uint64";
-$g_tbl_bit[6]="u64";
-
-$g_tbl_type[7]="sint64";
-$g_tbl_bit[7]="s64";
-#_g_num_tbl_type=8;
 
 ////////////////////////////////////////////////////////////////////////////
-$g_tbl_ord[0]="10進法";
-$g_tbl_ord[1]="16進法";
-#g_tbl_ord_num=2;
+$g_tbl_ord[0]		= "2進法";
+$g_tbl_ord_str[0]	= "2";
+$g_tbl_ord[1]		= "10進法";
+$g_tbl_ord_str[1]	= "10";
+$g_tbl_ord[2]		= "16進法";
+$g_tbl_ord_str[2]	= "16";
+#g_tbl_ord_num=3;
 
-//１０進法
-$g_tbl_fmt[0][0]="%u\\n";
-$g_tbl_fmt[0][1]="%d\\n";
-$g_tbl_fmt[0][2]="%u\\n";
-$g_tbl_fmt[0][3]="%d\\n";
-$g_tbl_fmt[0][4]="%u\\n";
-$g_tbl_fmt[0][5]="%d\\n";
-$g_tbl_fmt[0][6]="%I64u\\n";
-$g_tbl_fmt[0][7]="%I64d\\n";
-//１６進法
-$g_tbl_fmt[1][0]="0x%02x\\n";
-$g_tbl_fmt[1][1]="0x%02x\\n";
-$g_tbl_fmt[1][2]="0x%04x\\n";
-$g_tbl_fmt[1][3]="0x%04x\\n";
-$g_tbl_fmt[1][4]="0x%08x\\n";
-$g_tbl_fmt[1][5]="0x%08x\\n";
-$g_tbl_fmt[1][6]="0x%016I64x\\n";
-$g_tbl_fmt[1][7]="0x%016I64x\\n";
+
+////////////////////////////////////////////////////////////////////////////
+$g_tbl_delimiter[0]		= "改行";
+$g_tbl_delimiter_str[0]	= "\\n";
+$g_tbl_delimiter[1]		= "カンマ";
+$g_tbl_delimiter_str[1]	= ",";
+$g_tbl_delimiter[2]		= "空白";
+$g_tbl_delimiter_str[2]	= " ";
+$g_tbl_delimiter[3]		= "無し";
+$g_tbl_delimiter_str[3]	= "";
+#g_tbl_delimiter_num	= 4;
+
 
 ////////////////////////////////////////////////////////////////////////////
 $g_tbl_name[0]="xorshift[xor128](周期 2^128-1)";
@@ -122,7 +104,15 @@ Main:
 	if(#num<=0){
 		return false;
 	}
-	execmacro currentmacrodirectory+"\\hm_random_main.mac", $g_rnd_num, $g_rnd_func, $g_rnd_type, $g_rnd_fmt;
+	execmacro currentmacrodirectory+"\\hm_random_main.mac",
+		$g_rnd_num,
+		$g_rnd_func,
+		$g_rnd_in_base,
+		$g_rnd_min,
+		$g_rnd_max,
+		$g_rnd_prefix,
+		$g_rnd_out_base,
+		$g_rnd_delimiter;
 	return val(getresultex(-1));
 
 
@@ -130,23 +120,34 @@ ShowDialog:
 	##n = dllfunc("NEWDIALOG","コンボボックス・ドロップダウンリストのテスト",60);
 
 	##n = dllfunc("NEWCONTROL","text","txt1","生成する個数");
-	##n = dllfunc("NEWCONTROL","edit","ed1","10");
+	##n = dllfunc("NEWCONTROL","edit","num","10");
 
-	call MakeOrdDropBox;
+	call MakeMenu "乱数の種類", "func", 0;
 	if(! result){
 		return false;
 	}
-
-	call MakeFuncDropBox;
+	
+	call MakeMenu "最大最小値の基数", "in_base", 1;
 	if(! result){
 		return false;
 	}
-
-	call MakeTypeField;
+	
+	##n = dllfunc("NEWCONTROL","text","txt2","最小値");
+	##n = dllfunc("NEWCONTROL","edit","min","0");
+	
+	##n = dllfunc("NEWCONTROL","text","txt3","最大値");
+	##n = dllfunc("NEWCONTROL","edit","max","100");
+	
+	##n = dllfunc("NEWCONTROL","text","txt4","プレフィックス");
+	##n = dllfunc("NEWCONTROL","edit","prefix","hoge");
+	
+	call MakeMenu "乱数の基数", "out_base", 1;
 	if(! result){
 		return false;
 	}
-
+	
+	call MakeMenu "区切り", "delimiter", 2;
+	
 	##n = dllfunc("NEWCONTROL","okcancel","","");
 
 	if(! dllfunc("SHOWDIALOG",hidemaruhandle(0),1)){
@@ -167,71 +168,80 @@ ShowDialog:
 		//キャンセル
 		return false;
 	}
+	
+	call SetDialogValueToGlobalValue;
+	##ret = ##return;
+	return ##ret;
 
-	$$ord = dllfuncstr("GETCTRLSTATE","ord1");
-	if("0"==$$ord){
-		return false;
+
+MakeMenu:
+	$$title		= $$1;
+	$$value_name= $$2;
+	##no 		= ##3;
+	
+	if(0==##no){
+		##menu_num = #g_num_tbl_name;
+	}else if(1==##no){
+		##menu_num = #g_num_tbl_name;
+	}else if(2==##no){
+		##menu_num = #g_tbl_delimiter_num;
 	}
 	
-	$$func = dllfuncstr("GETCTRLSTATE","cmbl1");
+	##n = dllfunc("NEWCONTROL","text","",$$title);
+	##n = dllfunc("SETCTRLWIDTH","",15);
+	##n = dllfunc("NEWCONTROL","cmblist",$$value_name,"");
+
+	##i = 0;
+	while(##i < ##menu_num){
+		if(0==##no){
+			$$menu_name = $g_tbl_name[##i];
+		}else if(1==##no){
+			$$menu_name = $g_tbl_ord[##i];
+		}else if(2==##no){
+			$$menu_name = $g_tbl_delimiter[##i];
+		}
+		
+		##n = dllfunc("SETCTRLITEM","",$$menu_name,"-1");
+		##i=##i+1;
+	}
+	
+	//とりあえず、先頭の項目を選択しておく。
+	##n=dllfunc("SETCTRLSTATE",$$value_name, "1");
+	return true;
+
+SetDialogValueToGlobalValue:
+	$g_rnd_num 		= dllfuncstr("GETCTRLSTRING","num");
+	
+	$$func 			= dllfuncstr("GETCTRLSTATE","func");
 	if("0"==$$func){
 		return false;
 	}
+	$g_rnd_func 	= $g_tbl_func[val($$func)-1];
 	
-	$$type = dllfuncstr("GETCTRLSTATE","cmbl2");
-	if("0"==$$type){
+	$$in_base 		= dllfuncstr("GETCTRLSTATE","in_base");
+	if("0"==$$in_base){
 		return false;
 	}
-
-	##i = val($$type) - 1;
-	$g_rnd_num 	= dllfuncstr("GETCTRLSTATE","ed1");
-	$g_rnd_func = $g_tbl_func[val($$func)-1];
-	$g_rnd_type = $g_tbl_bit[##i];
-	$g_rnd_fmt 	= $g_tbl_fmt[val($$ord)-1][##i];
-
-	return true;
-
-MakeOrdDropBox:
-	##n = dllfunc("NEWCONTROL","text","","基数");
-	##n = dllfunc("SETCTRLWIDTH","",15);
-	##n = dllfunc("NEWCONTROL","cmblist","ord1","");
-
-	##i = 0;
-	while(##i < #g_num_tbl_name){
-		##n = dllfunc("SETCTRLITEM","",$g_tbl_ord[##i],"-1");
-		##i=##i+1;
+	$g_rnd_in_base 	= $g_tbl_ord_str[val($$in_base)-1];
+	
+	$g_rnd_min 		= dllfuncstr("GETCTRLSTRING","min");
+	$g_rnd_max 		= dllfuncstr("GETCTRLSTRING","max");
+	$g_rnd_prefix	= dllfuncstr("GETCTRLSTRING","prefix");
+	
+	$$out_base 		= dllfuncstr("GETCTRLSTATE","out_base");
+	if("0"==$$out_base){
+		return false;
 	}
-	##n=dllfunc("SETCTRLSTATE","ord1", "1");
-	return true;
-
-
-MakeFuncDropBox:
-	##n = dllfunc("NEWCONTROL","text","","乱数の種類");
-	##n = dllfunc("SETCTRLWIDTH","",15);
-	##n = dllfunc("NEWCONTROL","cmblist","cmbl1","");
-
-	##i = 0;
-	while(##i < #g_num_tbl_name){
-		##n = dllfunc("SETCTRLITEM","",$g_tbl_name[##i],"-1");
-		##i=##i+1;
+	$g_rnd_out_base	= $g_tbl_ord_str[val($$out_base)-1];
+	
+	$$delimiter		= dllfuncstr("GETCTRLSTATE","delimiter");
+	if("0" == $$delimiter){
+		return false;
 	}
-	##n=dllfunc("SETCTRLSTATE","cmbl1", "1");
+	$g_rnd_delimiter= $g_tbl_delimiter_str[val($$delimiter)-1];
 	return true;
-
-MakeTypeField:
-	##n = dllfunc("NEWCONTROL","text","","整数の型");
-	##n = dllfunc("SETCTRLWIDTH","",15);
-	##n = dllfunc("NEWCONTROL","cmblist","cmbl2","");
-
-	##i = 0;
-	while(##i < #_g_num_tbl_type){
-		##n = dllfunc("SETCTRLITEM","",$g_tbl_type[##i],"-1");
-		##i=##i+1;
-	}
-	##n=dllfunc("SETCTRLSTATE","cmbl2", "1");
-	return true;
-
-
+	
+	
 LoadDengaku:
 	#g_dengaku_state=false;
 	loaddll hidemarudir + "\\DengakuDLL.dll";

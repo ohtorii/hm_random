@@ -3,18 +3,6 @@
 #include<string>
 
 
-enum HM_MODE{
-	HM_MODE_u8 = 0,
-	HM_MODE_u16,
-	HM_MODE_u32,
-	HM_MODE_u64,
-	HM_MODE_s8,
-	HM_MODE_s16,
-	HM_MODE_s32,
-	HM_MODE_s64,
-	HM_MODE_ERROR,
-};
-
 enum HM_RND{
 	HM_RND_XOR128=0,
 	HM_RND_XOR,
@@ -23,12 +11,26 @@ enum HM_RND{
 	HM_RND_SFMT,
 };
 
-struct HmArg{
+class HmArg{
+public:
+	HmArg(){
+		m_num=10;
+		m_rnd=HM_RND_XOR128;
+		m_min=0;
+		m_max=100;
+		m_in_base=10;
+		m_out_base=10;
+		m_prefix=L"";
+		m_delimiter=L"\n";
+	};
 	s64				m_num;
 	HM_RND			m_rnd;
-	HM_MODE			m_mode;	
-	std::wstring	m_fmt;
-	u64				m_mask;
+	s64				m_min;
+	s64				m_max;
+	int				m_in_base;
+	int				m_out_base;
+	std::wstring	m_prefix;
+	std::wstring	m_delimiter;
 };
 
 

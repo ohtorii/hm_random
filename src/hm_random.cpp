@@ -18,23 +18,21 @@
 
 static void usage(){
 	printf(
-		"usage: hm_random num func type format\n"
+		"usage: hm_random num func base_in min max prefix base_out delimiter\n"
 		"Argments:\n"
 		"num    : number of genrate random values.\n"
-		"func   : xorshift (period 2^128-1)\n"
+		"func   : xorshift (period 2^128-1)           default=xorshift\n"
 		"         xor      (period 2^32-1)\n"
 		"         xor64    (period 2^64-1)\n"
 		"         xorwow   (period 2^192-2^32)\n"
 		"         sfmt     (SIMD-oriented Fast Mersenne Twister. period 2^19937-1)\n"
-		"type   :  u8   unsigned 8bit.\n"
-		"         u16   unsigned 16bit.\n"
-		"         u32   unsigned 32bit.\n"
-		"         u64   unsigned 64bit.\n"
-		"          s8   signed   8bit.\n"
-		"         s16   signed   16bit.\n"
-		"         s32   signed   32bit.\n"
-		"         s64   signed   64bit.\n"
-		"format : printf format string.(Ex %%d\\n)\n"
+		"base_in: min/max base.(2/8/10/16/...)        default=10\n"
+		"min    ; min value(signed).                  default=0\n"
+		"max    : max value(signed). [min,max]        default=100\n"
+		"prefix : prefix.                             default=\"\"\n"
+		"base_out: output base.(2/8/10/16/...)        default=10\n"
+		"delimiter : Blank for newline,printf format. default=\"\\n\"\n"
+		"\n"
 		"Examples.\n"
 		"(1) hm_random.exe 10 xorshift s32 %%d\\n\n"
 		"(2) hm_random.exe 3 xorshift u64 \"%%I64u,\\n\"\n"
@@ -78,38 +76,16 @@ int _tmain(int argc, _TCHAR* argv[])
 		usage();
 		return 1;
 	}
-	random_interface*obj = new_rand_obj(arg.m_rnd);
-	const wchar_t* fmt = arg.m_fmt.c_str();
-
+	
+	random_interface	*obj	= new_rand_obj(arg.m_rnd);	
+	const u64 			range 	= 1 + (arg.m_max - arg.m_min);
+	s64 				value	= 0;
+	wchar_t				out_buf[256];
+	
 	while(0 < arg.m_num){
-		switch(arg.m_mode){
-		case HM_MODE_u8:
-			wprintf_s(fmt, (u8)obj->gen32());
-			break;
-		case HM_MODE_u16:
-			wprintf_s(fmt, (u16)obj->gen32());
-			break;
-		case HM_MODE_u32:
-			wprintf_s(fmt, (u32)obj->gen32());
-			break;
-		case HM_MODE_u64:
-			wprintf_s(fmt, (u64)obj->gen64());
-			break;
-		case HM_MODE_s8:
-			wprintf_s(fmt, (s8)obj->gen32());
-			break;
-		case HM_MODE_s16:
-			wprintf_s(fmt, (s16)obj->gen32());
-			break;
-		case HM_MODE_s32:
-			wprintf_s(fmt, (s32)obj->gen32());
-			break;
-		case HM_MODE_s64:
-		default:
-			wprintf_s(fmt, (s64)obj->gen64());
-			break;
-		}
-
+		value = arg.m_min + ((s64)(obj->gen64()%range));
+		_i64tow_s(value,out_buf,sizeof(out_buf)/sizeof(out_buf[0]),arg.m_out_base);
+		wprintf_s(L"%s%s%s", arg.m_prefix.c_str(), out_buf, arg.m_delimiter.c_str());
 		--(arg.m_num);
 	}
 

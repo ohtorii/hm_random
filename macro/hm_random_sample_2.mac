@@ -4,12 +4,15 @@
 マクロをカスタマイズされる方向けのサンプルです。
 
 （設定）
-個数        ：5個
-基数        ：16進法
-乱数の種類  ：xoreshift
-整数の型    ：u64
-その他      ：カンマ区切り
+個数       		：50個
+乱数の種類  	：xorshift
+最大最小値の基数：10進法
+最小値			：-10
+最大値			：200
+プレフィックス	：""
+出力の基数		：10
+区切り			：","
 */
 
 $exe_path = currentmacrodirectory+"\\hm_random_main.mac";
-execmacro $exe_path,  "5", "xorshift", "u64", "0x%016I64x, ";
+execmacro $exe_path,  "50", "xorshift", "10", "-10", "200", "", "10", ",";

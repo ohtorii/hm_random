@@ -9,7 +9,7 @@
 $g_exe_filename = "hm_random.exe";
 
 //exe‚É—^‚¦‚éˆø”‚ÌŒÂ”
-#g_num_arg		= 4;
+#g_num_arg		= 8;
 
 
 call Start;
@@ -39,10 +39,14 @@ Main:
 		return false;
 	}
 
-	$$arg	= " " + getarg(0) + " " + getarg(1) + " " + getarg(2);
-	call CorrectFormat getarg(3);
+	$$arg	= " " + getarg(0) + " " + getarg(1) + " " + getarg(2) + " " + getarg(3) + " " + getarg(4);
+	call CorrectFormat getarg(5);
+	$$arg	= $$arg + " " + "\"" + $$return + "\"";
+	$$arg	= $$arg + " " + getarg(6);
+	call CorrectFormat getarg(7);
 	$$arg	= $$arg + " " + "\"" + $$return + "\"";
 
+	message($$arg);
 	$$exe = "\"" + $g_exe_filename + "\"";
 	runex $$exe + $$arg
 		, 1 			//sync	  0:async 1:sync
