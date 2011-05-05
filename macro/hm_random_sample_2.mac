@@ -12,6 +12,9 @@
 プレフィックス  ：""
 出力の基数      ：10
 区切り          ：","
+
+コマンドラインの詳細は hm_random.exe のソースコードを参照して下さい。
+usage関数に色々書いています。
 */
 
 $exe_path = currentmacrodirectory+"\\hm_random_main.mac";
