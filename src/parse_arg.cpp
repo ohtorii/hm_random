@@ -34,7 +34,7 @@ static bool argv_func(HmArg&out, _TCHAR*p){
 \n -> 改行の文字コードへ
 \t -> タブの文字コードへ
 
-in  = foo\n
+in	= foo\n
 out = foo + 改行コード
 
 int = bar\\
@@ -71,12 +71,22 @@ static void Replace(std::wstring&out, _TCHAR*argv){
 	}
 }
 
+static bool CheckBase(int v, const char* str){
+	if((v < HM_MIN_BASE) || (HM_MAX_BASE<v)){
+		wprintf(L"ErrArg: Invalid base balue %s.\n"
+				L"Input value   = %d\n"
+				L"Correct range = %d-%d\n", str, v, HM_MIN_BASE,HM_MAX_BASE);
+		return false;
+	}
+	return true;
+}
+
 bool HmParseArg(HmArg &out, int argc, _TCHAR*argv[]){
 	if(argc<2){
 		wprintf(L"ErrArg: Invalid arg num.\n");
 		return false;
 	}
-	
+
 	if(1<argc){
 		out.m_num  = _wtoi64(argv[1]);
 	}
@@ -86,10 +96,14 @@ bool HmParseArg(HmArg &out, int argc, _TCHAR*argv[]){
 			return false;
 		}
 	}
-	
+
 	if(3<argc){
 		out.m_in_base=_wtoi(argv[3]);
 	}
+	if(! CheckBase(out.m_in_base,"in_base")){
+		return false;
+	}
+
 	if(4<argc){
 		out.m_min = _wcstoi64(argv[4],0,out.m_in_base);
 	}
@@ -106,9 +120,12 @@ bool HmParseArg(HmArg &out, int argc, _TCHAR*argv[]){
 	if(7<argc){
 		out.m_out_base=_wtoi(argv[7]);
 	}
+	if(! CheckBase(out.m_out_base,"out_base")){
+		return false;
+	}
 	if(8<argc){
 		Replace(out.m_delimiter, argv[8]);
 	}
-	
+
 	return true;
 }

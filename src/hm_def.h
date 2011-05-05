@@ -15,3 +15,6 @@ public:
 	virtual u32 gen32()=0;
 	virtual u64 gen64()=0;
 };
+
+#define HM_MIN_BASE	2
+#define HM_MAX_BASE	36

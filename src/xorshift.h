@@ -21,7 +21,7 @@ public:
 		/*初期値の設定方法。
 		「x <- y <- z <- w 」と伝搬するのでwのみ初期化すると、乱数列の先頭に似た
 		数値が現れるのでよくない。
-		
+
 		x/y/z/w全てを初期化することにしました。
 		*/
 		LARGE_INTEGER li;
@@ -35,7 +35,7 @@ public:
 		x=seed1;
 		y=seed2;
 		z=qpc_l;
-		
+
 		//
 		//The seed set for xor128 is four 32-bit integers x,y,z,w not all 0.
 		//
@@ -62,7 +62,7 @@ private:
 
 //周期：2^32-1
 class xs_xor : public random_interface{
-public:		
+public:
 	xs_xor(){
 		LARGE_INTEGER li;
 		QueryPerformanceCounter(&li);
@@ -70,20 +70,20 @@ public:
 	}
 	u32 gen32(){
 		y^=(y<<13);
-		
+
 		/*note 論文中の間違いを修正。（2011/05/03）
 		（誤）y=(y>>17);
 		（正）y^=(y>>17);
 		*/
 		y^=(y>>17);
-		
+
 		return (y^=(y<<5));
 	};
 	u64 gen64(){
 		return (((u64)gen32())<<32) | ((u64)gen32());
 	};
 private:
-	u32 y;	
+	u32 y;
 };
 
 
@@ -94,7 +94,7 @@ public:
 	xs_xor64(){
 		LARGE_INTEGER li;
 		QueryPerformanceCounter(&li);
-		
+
 		//QueryPerformanceCounterで６４ビット全体を
 		//pidで上位３２ビットを、GetTickCountで下位３２ビットを。
 		x = li.QuadPart ^ (((u64)_getpid())<<32) ^ GetTickCount();
@@ -118,7 +118,7 @@ class xs_xorwow : public random_interface{
 public:
 	xs_xorwow(){
 		//論文に初期値の指定が無いのでいい感じに。
-		
+
 		LARGE_INTEGER li;
 		QueryPerformanceCounter(&li);
 		u32 qpc_l = li.LowPart;
@@ -131,10 +131,10 @@ public:
 		y=seed2;
 		z=qpc_l;
 		w=qpc_h;
-		
+
 		//念のため、x/y/z/w/v が全て0になるのを避ける。
 		v=~w;
-		
+
 		//>with any odd constant replacing 362437
 		//とりあえずそのままに
 		d=6615241;

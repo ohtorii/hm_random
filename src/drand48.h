@@ -8,10 +8,10 @@ public:
 	drand48(){
 		LARGE_INTEGER li;
 		QueryPerformanceCounter(&li);
-		
+
 		//QueryPerformanceCounterで６４ビット全体を
 		//pidで上位３２ビットを、GetTickCountで下位３２ビットを。
-		x = li.QuadPart ^ (((u64)_getpid())<<32) ^ GetTickCount();		
+		x = li.QuadPart ^ (((u64)_getpid())<<32) ^ GetTickCount();
 	};
 
 	u32 gen32(){

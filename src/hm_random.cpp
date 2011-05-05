@@ -27,17 +27,12 @@ static void usage(){
 		"         xorwow   (period 2^192-2^32)\n"
 		"         sfmt     (SIMD-oriented Fast Mersenne Twister. period 2^19937-1)\n"
 		"         drand48  (period 2^48)\n"
-		"base_in: min/max base.(2/8/10/16/...)        default=10\n"
+		"base_in: min/max base.(2/8/10/16/...36)      default=10\n"
 		"min    ; min value(signed).                  default=0\n"
 		"max    : max value(signed). [min,max]        default=100\n"
 		"prefix : prefix.                             default=\"\"\n"
-		"base_out: output base.(2/8/10/16/...)        default=10\n"
-		"delimiter : Blank for newline,printf format. default=\"\\n\"\n"
-		"\n"
-		"Examples.\n"
-		"(1) hm_random.exe 10 xorshift s32 %%d\\n\n"
-		"(2) hm_random.exe 3 xorshift u64 \"%%I64u,\\n\"\n"
-		"(3) hm_random.exe 10 sfmt u64 \"0x%%016I64x / \"\n"
+		"base_out: output base.(2/8/10/16/...36)      default=10\n"
+		"delimiter : Blank for newline,printf format. default=\"\\n\"\n"		
 	);
 }
 
@@ -71,7 +66,7 @@ static random_interface* new_rand_obj(HM_RND type){
 static void delete_rand_obj(random_interface *p){
 	delete p;
 }
-	
+
 int _tmain(int argc, _TCHAR* argv[])
 {
 #if 0	/*debug*/
@@ -85,12 +80,12 @@ int _tmain(int argc, _TCHAR* argv[])
 		usage();
 		return 1;
 	}
-	
-	random_interface	*obj	= new_rand_obj(arg.m_rnd);	
-	const u64 			range 	= 1 + (arg.m_max - arg.m_min);
+
+	random_interface	*obj	= new_rand_obj(arg.m_rnd);
+	const u64			range	= 1 + (arg.m_max - arg.m_min);
 	s64 				value	= 0;
-	wchar_t				out_buf[256];
-	
+	wchar_t 			out_buf[256];
+
 	while(0 < arg.m_num){
 		value = arg.m_min + ((s64)(obj->gen64()%range));
 		_i64tow_s(value,out_buf,sizeof(out_buf)/sizeof(out_buf[0]),arg.m_out_base);
