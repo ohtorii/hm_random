@@ -6,7 +6,7 @@
 */
 
 
-$g_exe_filename = "hm_random.exe";
+$g_exe_filename = currentmacrodirectory+"\\hm_random.exe";
 
 //exeに与える引数の個数
 #g_num_arg		= 8;
@@ -35,7 +35,13 @@ Main:
 	}
 
 	if(#g_num_arg != argcount){
-		message("引数の個数が合いません");
+		message("引数の個数が合いません。\n"		+
+				"ファイル：hm_random_main.mac\n"	+
+				"\n"								+
+				"もしかして、" + currentmacrobasename + " を直接実行していませんか？\n"	+
+				"内部利用のマクロなので直接実行しても動きません。\n"
+				"本マクロを初めてお使いになるときは hm_random_menu.mac を実行して下さい。"
+			);
 		return false;
 	}
 
@@ -52,7 +58,7 @@ Main:
 	//万単位の乱数を生成すると時間がかかるため。
 	seterrormode 1, 0;
 	
-	runex $$exe + $$arg
+	runex $$exe + " " + $$arg
 		, 1 			//sync	  0:async 1:sync
 		, 0, "" 		//stdin   0:none 1:auto 2:file 3:(reserve) 4:all 5:select
 		, 4, "" 		//stdout  0:none 1:auto 2:file 3:add file  4:new 5:insert 6:replace
